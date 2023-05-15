@@ -23,8 +23,6 @@ namespace VTChallenge.Controllers {
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password) {
-            username = "Doguez";
-            password = "P@ssw0rd";
             string? token = await this.service.GetToken(username, password);
 
             if(token == null) {
