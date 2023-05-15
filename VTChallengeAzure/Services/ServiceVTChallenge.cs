@@ -4,8 +4,6 @@ using NugetVTChallenge.Models;
 using System.Net.Http.Headers;
 using System.Net;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace VTChallengeAzure.Services {
     public class ServiceVTChallenge {
@@ -165,7 +163,7 @@ namespace VTChallengeAzure.Services {
         #endregion
 
         #region USUARIO
-        public async Task RegisterUser(string name, string tag, string email, string password) {
+        public async Task<HttpStatusCode> RegisterUser(string name, string tag, string email, string password) {
             Usuario newUser = new Usuario {
                 Uid = "",
                 Name = name,
@@ -181,11 +179,11 @@ namespace VTChallengeAzure.Services {
                 Rol = ""
             };
             string request = "/api/auth/register";
-            await this.InsertApiAsync<Usuario>(request, newUser);
+            return await this.InsertApiAsync<Usuario>(request, newUser);
         }
 
         public async Task<Usuario> GetPerfil() {
-            string request = "/api/auth/profile";
+            string request = "/api/usuario/profile";
             string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
             return await this.CallApiAsync<Usuario>(request, token);
         }

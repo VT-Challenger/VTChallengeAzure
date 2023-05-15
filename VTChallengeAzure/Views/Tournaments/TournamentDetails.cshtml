@@ -1,0 +1,317 @@
+﻿@section scriptWinner{
+    <script type="text/javascript">
+        const divWinner = document.getElementById("winner");
+        var list = document.getElementById("list-winner");
+        divWinner.addEventListener("click", function (e) {
+            e.preventDefault();
+            party.confetti(e);
+            list.classList.add("animation-winner");
+            list.addEventListener("animationend", function () {
+                list.classList.remove("animation-winner");
+            });
+        });
+    </script>
+}
+@section scriptClassWinner{
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            // Obtener todos los elementos ul con la clase "bracket"
+            const brackets = document.querySelectorAll(".bracket");
+
+            // Iterar sobre cada elemento ul
+            for (let i = 0; i < brackets.length; i++) {
+                const bracket = brackets[i];
+                const teamItems = bracket.querySelectorAll(".team-item");
+
+                for (let j = 0; j < teamItems.length; j++) {
+                    const teamItem = teamItems[j];
+
+                    const team1Name =
+                        teamItem.querySelector(".team span").textContent;
+
+                    const team1Result =
+                        teamItem.querySelector(".team .result").textContent;
+
+                    const team2Name = teamItem.querySelector(
+                        ".team:last-child span"
+                    ).textContent;
+
+                    const team2Result = teamItem.querySelector(
+                        ".team:last-child .result"
+                    ).textContent;
+
+                    if (team1Result > team2Result) {
+                        teamItem
+                            .querySelector(".team .result")
+                            .classList.add("winner");
+                    } else {
+                        teamItem
+                            .querySelector(".team:last-child .result")
+                            .classList.add("winner");
+                    }
+                }
+            }
+        });
+    </script>
+}
+@{
+    Layout = "_LayoutDetailsTournament";
+
+    TournamentComplete tournament = (TournamentComplete)ViewData["TOURNAMENT"];
+    List<TournamentPlayers> playersTournament = ViewData["PLAYERSTOURNAMENT"] as List<TournamentPlayers>;
+    List<Round> nameRounds = ViewData["ROUNDSNAME"] as List<Round>;
+    List<MatchRound> matchesTournament = ViewData["MATCHESTOURNAMENT"] as List<MatchRound>;
+    List<TournamentPlayers> winners = ViewData["TOURNAMENTWINNER"] as List<TournamentPlayers>;
+    bool val = (bool)ViewData["VALIDATEINSCRIPTION"];
+
+    var teams = (tournament.LimitPlayers / 5);
+    var fecha = tournament.DateInit.ToString("dd MMM yyyy");
+    
+}
+
+<div id="loading">
+    <div id="loading-content">
+        <img src="~/imgs/icons/loading.gif" alt="Cargando..." />
+        <div class="text-loading">
+            Realizando Inscripcion
+            <div class="spinner-grow text-light" role="status"></div>
+            <div class="spinner-grow text-light" role="status"></div>
+            <div class="spinner-grow text-light" role="status"></div>
+        </div>
+    </div>
+</div>
+
+<div class="header">
+    <img src="~/imgs/tournaments/@tournament.Image" class="image-background" />
+    <div class="header-content">
+        <img
+            src="~/imgs/icons/t-cup-uefa.svg"
+            class="header-icon"
+        />
+        <div>
+            <h1 class="secondary-title">@tournament.Name</h1>
+            <ul class="header-description">
+                <li>
+                    <img
+                        src="~/imgs/icons/t-group-icon.svg"
+                        class="ico"
+                    />
+                    @teams Teams (5vs5)
+                </li>
+                <li>
+                    <img
+                        src="~/imgs/icons/t-cup-icon.svg"
+                        class="ico"
+                    />
+                    @nameRounds[0].Name (Partido único)
+                </li>
+                <li>
+                    @if (!val) {
+                        <a onclick="AlertUnion('@tournament.Tid')" class="button-glitch">Unirse</a>
+                    }
+                   
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="tabs">
+    <input type="radio" id="description" name="tab-control" checked />
+    <input type="radio" id="participantes" name="tab-control" />
+    <input type="radio" id="clasificacion" name="tab-control" />
+    <input type="radio" id="calendario" name="tab-control" />
+    <ul class="tabs-header">
+        <li>
+            <label for="description" role="button">
+                <span>Descripcion</span>
+            </label>
+        </li>
+        <li>
+            <label for="participantes" role="button">
+                <span>Participantes</span>
+            </label>
+        </li>
+        <li>
+            <label for="clasificacion" role="button">
+                <span>Clasificacion</span>
+            </label>
+        </li>
+        <li>
+            <label for="calendario" role="button">
+                <span>Calendario</span>
+            </label>
+        </li>
+    </ul>
+
+    <div class="content">
+        <!-- TAB => DESCRIPTION TOURNAMENT -->
+        <section>
+            <div class="description">
+                <h1>Descripcion</h1>
+                <p>@tournament.Description</p>
+            </div>
+            <div class="description">
+                <div class="content">
+                    <h1>Rango</h1>
+                    <h3>@tournament.Rank</h3>
+                    <h1>Plataforma</h1>
+                    <h3><a href="">@tournament.Platform</a></h3>
+                    <h1>Fecha</h1>
+                    <h3>@fecha</h3>
+                    <h1>Organizador</h1>
+                    <h3>@tournament.Organizator</h3>
+                </div>
+                <div class="card-organizator">
+                    <img src="~/imgs/app/template-card.png"
+                         class="template" />
+                    <img src="@tournament.ImageOrganization"
+                         class="image-organizator" />
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB => PARTICIPANTES -->
+        <section>
+            @foreach (TournamentPlayers player in playersTournament) {
+                <div class="container-participante ">
+                    <div class="team @(Context.User.Identity.Name == player.Name ? "user":"active")">
+                        <h3>T-@player.Team</h3>
+                    </div>
+                    <div class="data">
+                        <img
+                            src="@player.ImageSmall"
+                            class="img-participante"
+                        />
+                        <h3>@player.Name</h3>
+                    </div>
+                </div>
+            }
+        </section>
+
+        <!-- TAB => CLASIFICACION -->
+        <section>
+            <div class="tournament-container">
+                <div class="tournament-headers">
+                    @foreach(Round round in nameRounds) {
+                        var partidosDeRonda = matchesTournament.Where(partido => partido.Fase.Equals(round.Name)).ToList();
+                        if (partidosDeRonda.Count > 0) {
+                            <h3>@round.Name</h3>
+                        }
+                    }
+                    @if (winners.Count != 0) {
+                        <h3>Winner</h3>
+                    }
+                </div>
+
+                @if(matchesTournament.Count!=0) {
+                    <div class="tournament-brackets">
+                    @for(int i=0; i<nameRounds.Count; i++) {
+                        var partidosDeRonda = matchesTournament.Where(partido => partido.Fase.Equals(nameRounds[i].Name)).ToList();
+                        if(partidosDeRonda.Count > 0) {
+                            <ul class="bracket @(i==nameRounds.Count-1 ? "bracket-4":"bracket-" + (i+1))">
+                                @foreach (MatchRound match in matchesTournament) {
+                                    @if (match.Fase == nameRounds[i].Name) {
+                                        <li class="team-item">
+                                            <time>@match.Date.ToString("HH:mm")</time>
+                                            <div class="team">
+                                                <span>Team @match.Tblue</span>
+                                                <span class="result">@match.Rblue</span>
+                                            </div>
+                                            <div class="team">
+                                                <span>Team @match.Tred</span>
+                                                <span class="result">@match.Rred</span>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        }
+                    }
+                        @if(winners.Count != 0) {
+                            <ul class="bracket bracket-5">
+                                <li class="team-item-winner" id="winner">
+                                    <span class="title-winner">Team @winners[0].Team</span>
+                                    <ul id="list-winner">
+                                        @foreach (TournamentPlayers winner in winners) {
+                                            <li>
+                                                <img src="@winner.ImageSmall" width="50px" height="50px" />
+                                                @winner.Name
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            </ul>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+
+        <!-- TAB => CALENDAR -->
+        <section>
+            @for (int i= 0; i < nameRounds.Count; i++){
+                <div class="calendar-header">
+                    <h1>@nameRounds[i].Name</h1>
+                    <h3>@nameRounds[i].Date.ToString("dd MMM yyyy")</h3>
+                </div>
+                <div class="content-calendar">
+                    @foreach (MatchRound match in matchesTournament) {
+                        @if (match.Fase == nameRounds[i].Name) {
+                            <div class="match">
+                                <time>@match.Date.ToString("HH:mm")</time>
+                                <div class="team">
+                                    <span>Team @match.Tblue</span>
+                                    <span class="result">@match.Rblue</span>
+                                </div>
+                                <div class="team">
+                                    <span>Team @match.Tred</span>
+                                    <span class="result">@match.Rred</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+
+
+<script>
+    function AlertUnion(tid) {
+        Swal.fire({
+            title: "Confirmacion de inscripcion",
+            imageUrl: "@Context.User.FindFirst("IMAGESMALL").Value",
+            html: `
+                    <p>Al confirmar su inscripción confirma que: </p>
+                    <ul class='swal2-list-rules'>
+                        <li>No tendrá comportamientos irrespetuosos durante el periodo de duración del torneo</li>
+                        <li>Jugará todas las partidas que se le asignen</li>
+                        <li>Se adaptará al rol que le toque dentro del equipo formado</li>
+                    </ul>
+                    <p class='swal2-text-advisor'>Si incumple alguna de las normas recitadas o si el organizador tiene razones para expulsarle del torneo se le podrá expulsar</p>
+                `,
+            imageWidth: 150,
+            imageHeight: 150,
+            confirmButtonText: "Confirmar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoading();
+                $.ajax({
+                    url: "/Tournaments/InscriptionPlayer",
+                    type: "POST",
+                    data: { tid: tid }, // Pasar el parámetro 'tid' como datos de la solicitud
+                    success: (r) => {
+                        window.location = "/Tournaments/TournamentDetails?tid=" + tid;
+                    },
+                });
+            }
+            return false;
+        });
+    }
+    function showLoading() {
+        document.getElementById("loading").style.display = "block";
+    }
+</script>

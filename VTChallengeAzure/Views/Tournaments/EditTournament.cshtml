@@ -1,0 +1,236 @@
+﻿@model TournamentComplete
+
+@{
+    Layout = "_LayoutEditTournament";
+    List<TournamentPlayers> playersTournament = ViewData["PLAYERSTOURNAMENT"] as List<TournamentPlayers>;
+    List<Round> nameRounds = ViewData["ROUNDSNAME"] as List<Round>;
+    List<MatchRound> matchesTournament = ViewData["MATCHESTOURNAMENT"] as List<MatchRound>;
+    int count = 1;
+}
+@section scriptAlertDelete{
+    <script>
+        function AlertRemovePlayer(tid, uid) {
+            Swal.fire({
+                title: "Expulsar jugador",
+                text: "No se podrá revertir dicha acción. Se le enviará un email informando al usuario de que ha sido expulsado del torneo.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Si",
+                cancelButtonText: "Cancelar",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/Tournaments/DeleteUserTournament?tid=" + tid + "&uid=" + uid,
+                        success: (r) => {
+                            window.location =
+                                "/Tournaments/EditTournament?tid=" + tid;
+                        },
+                    });
+                    Swal.fire(
+                        "¡Eliminado!",
+                        "El jugador fue expulsado con existo.",
+                        "success"
+                    );
+                }
+            });
+        }
+    </script>
+}
+
+@section scriptAdminTournament{
+<script>
+        $(document).ready(function () {
+            $("#formMatches").submit(function (e) {
+                e.preventDefault();
+
+                var partidos = document.querySelectorAll(".match");
+                var data = [];
+
+                partidos.forEach((element) => {
+                    let json = {
+                        Mid: parseInt($(element).find("input").val()),
+                        Tblue: parseInt(
+                            element
+                                .querySelector(".team span")
+                                .textContent.replace("Team", " ")
+                                .trim()
+                        ),
+                        TRed: parseInt(
+                            element
+                                .querySelector(".team:nth-of-type(2) span")
+                                .textContent.replace("Team", " ")
+                                .trim()
+                        ),
+                        Rblue: parseInt($(element).find(".team input").val()), // obtener valor del input del primer equipo
+                        Rred: parseInt($(element).find(".team:nth-of-type(2) input").val()), // obtener valor del input del segundo equipo
+                        Date: element.querySelector("time").textContent,
+                        Rid: parseInt($(element).find("input.roundId").val()),
+                    };
+
+                    data.push(json);
+                });
+
+
+                $.post("/Tournaments/UpdateUserTournament", { tid: @Model.Tid, data: JSON.stringify(data) })
+                .done(function (data) {
+                        Swal.fire({
+                            title: "¡Modificacion con exito!",
+                            text: "Los resultados de su torneo fueron modificados con exito.",
+                            icon: "success",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "Ok",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location = "/Tournaments/EditTournament?tid=" + @Model.Tid;
+                            }
+                        });
+                });;
+               
+            });
+        });
+</script>
+}
+
+@if (Model != null) {
+    <div class="header">
+        <img src="~/imgs/tournaments/@Model.Image" class="image-background" />
+        <div class="header-content">
+            <img src="~/imgs/icons/t-config-icon.svg"
+             class="header-icon animation-loop" />
+            <div class="">
+                <h1 class="secondary-title">Administración @Model.Name</h1>
+                <p class="description-secondary-text">
+                    Bienvenido al panel de Administración de su torneo
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="tabs">
+        <input type="radio" id="partidos" name="tab-control" checked />
+        <input type="radio" id="players" name="tab-control" />
+        <ul class="tabs-header">
+            <li>
+                <label for="partidos" role="button">
+                    <span>Partidos</span>
+                </label>
+            </li>
+            <li>
+                <label for="players" role="button">
+                    <span>Jugadores</span>
+                </label>
+            </li>
+        </ul>
+        <div class="content">
+            <!--PARTIDOS-->
+            <section class="partidos">
+                <form id="formMatches">
+                    @foreach (Round round in nameRounds)
+                    {
+                        var partidosDeRonda = matchesTournament.Where(partido => partido.Fase.Equals(round.Name)).ToList();
+                        var lastRound = nameRounds.LastOrDefault(round => matchesTournament.Any(match => match.Fase == round.Name));
+                        if (partidosDeRonda.Count > 0) {
+                            <div class="calendar-header">
+                                <h1>@round.Name</h1>
+                                <h3>@round.Date.ToString("dd MMM yyyy")</h3>
+                            </div>
+
+                            <div class="content-calendar">
+                                @foreach (MatchRound match in matchesTournament) {
+                                    var isEditable = round == lastRound;
+                                    @if (match.Fase == round.Name)
+                                    {
+                                        <div class="match">
+                                            <input name="matchId" type="hidden" value="@match.Mid" />
+                                            <input name="roundId" type="hidden" value="@round.Rid" class="roundId" />
+                                            <time>@match.Date.ToString("HH:mm")</time>
+                                            <div class="team">
+                                                <span>Team @match.Tblue</span>
+                                                <input type="number"
+                                                        max="3"
+                                                        min="0"
+                                                        name="result"
+                                                        class="result"
+                                                        value="@match.Rblue"
+                                                        placeholder="0"  
+                                                        @if (!isEditable) {
+                                                            <text>readonly</text>
+                                                        } 
+                                                />
+                                            </div>
+                                            <div class="team">
+                                                <span>Team @match.Tred</span>
+                                                <input type="number"
+                                                        max="3"
+                                                        min="0"
+                                                        name="result"
+                                                        class="result"
+                                                        value="@match.Rred"
+                                                        placeholder="0"
+                                                        @if (!isEditable) {
+                                                            <text>readonly</text>
+                                                        }    
+                                                />
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                    <div class="content-calendar mt-4">
+                        <button class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TAB => PARTICIPANTES -->
+            <section class="participantes">
+                <table class="table">
+                    <thead class="text-center">
+                        <tr>
+                            <th><h1>#</h1></th>
+                            <th>
+                                <h1>Jugadores</h1>
+                            </th>
+                            <th>
+                                <h1>Equipo</h1>
+                            </th>
+                            <th>
+                                <h1>Acciones</h1>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach (TournamentPlayers player in playersTournament) {
+                            <tr>
+                                <td><h3>@(count++)</h3></td>
+                                <td>
+                                    <div class="container-participante">
+                                        <div class="data">
+                                            <img src="@player.ImageSmall"
+                                         class="img-participante" />
+                                            <h3>@player.Name</h3>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><h3>@player.Team</h3></td>
+                                <td>
+                                    <a onclick="" class="btn btn-light">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                    </a>
+
+                                    <a onclick="AlertRemovePlayer('@Model.Tid', '@player.Uid')" class="btn btn-danger">
+                                        <i class="bi bi-person-x"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+}

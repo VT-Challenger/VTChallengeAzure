@@ -1,8 +1,15 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    Layout = "_LayoutHome";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="content">
+    <a asp-controller="Tournaments" asp-action="ListTournaments" class="main-title-valo active">
+        jugar
+    </a>
+    <a asp-controller="Users" asp-action="Trayectoria" class="main-title-valo"> 
+        trayectoria 
+    </a>
+    <a asp-controller="Tournaments" asp-action="ListTournamentsUser" class="main-title-valo">
+        crear torneo
+    </a>
 </div>

@@ -17,22 +17,21 @@ builder.Services.AddAuthentication(options => {
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 }).AddCookie();
 
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options => {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-});
-builder.Services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAntiforgery();
-builder.Services.AddControllersWithViews();
-
-
-builder.Services.AddTransient<HttpClient>();
 builder.Services.AddTransient<ServiceVTChallenge>();
 builder.Services.AddTransient<ServiceStorageBlob>();
 builder.Services.AddSingleton<HelperMails>();
 builder.Services.AddSingleton<HelperJson>();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+});
+builder.Services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
+
+builder.Services.AddAntiforgery();
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 

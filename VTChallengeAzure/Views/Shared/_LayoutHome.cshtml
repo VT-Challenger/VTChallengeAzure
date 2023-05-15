@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="~/logo.ico" />
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- PERSONAL -->
+    <link rel="stylesheet" href="~/css/customs/button.css" />
+    <link rel="stylesheet" href="~/css/global.css" />
+    <link rel="stylesheet" href="~/css/index_user.css" />
+    <title>VT Challenge</title>
+</head>
+<body>
+    <div class="menu" id="menu">
+        <div class="menu-logo">
+            <!-- <img src="./imgs/logo.svg" width="50px" height="50px" /> -->
+            <h3 class="text-logo">
+                <a asp-controller="Home" asp-action="Index">VTCHALLENGE</a>
+            </h3>
+        </div>
+        <a asp-controller="Users" asp-action="ProfileUser" class="menu-profile">
+            <img src="@Context.User.FindFirst("IMAGESMALL").Value" />
+        </a>
+    </div>
+
+    <video autoplay muted loop class="back-video">
+        <source src="~/imgs/app/homeScreen.mp4" type="video/mp4" />
+        Your browser does not support HTML5 video.
+    </video>
+
+
+    @RenderBody()
+
+
+</body>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</html>

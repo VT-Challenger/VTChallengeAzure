@@ -1,0 +1,138 @@
+.container-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    grid-gap: 20px;
+    align-items: stretch;
+    margin-block: 50px;
+}
+
+.container-cards .text {
+    padding: 20px;
+}
+.card {
+    border: none;
+    background-color: var(--color-dark-secondary-val);
+    border-radius: 20px;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.card-filter {
+    background: rgba(0, 0, 0, 0.3);
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+}
+.card-create {
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.card-header {
+    padding: 0;
+    position: relative;
+}
+.btn-create {
+    background-color: var(--color-primary-val);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 1.5em;
+    color: white;
+    font-weight: bold;
+}
+.btn-create:hover {
+    color: white;
+    background: var(--color-secondary-val);
+}
+
+
+.card-img {
+    border-radius: 0px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    height: 12vh;
+    object-fit: cover;
+    object-position: top;
+}
+.player-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px 20px;
+    color: white;
+    font-weight: bold;
+    font-family: var(--font-val);
+    background-color: #192b4598;
+    border-radius: 20px;
+}
+
+.card-body {
+    position: relative;
+}
+.card-title {
+    font-size: 30px;
+    color: white;
+    font-weight: bold;
+    font-family: var(--font-calibri);
+}
+.card-text {
+    font-size: 18px;
+    color: var(--color-light-text);
+    font-family: var(--font-calibri);
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-bottom: 0.1rem;
+}
+.icons-container {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+.icon-img {
+    position: relative;
+    width: 35px;
+    height: auto;
+}
+.icon-img:nth-child(1) {
+    margin-right: 10px;
+}
+
+.card-footer {
+    border: none;
+    background-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    align-items: center;
+}
+.card-footer-text {
+    font-size: 18px;
+    color: white;
+    font-family: "Console", "Courier New", monospace;
+}
+.card-button {
+    font-size: 15px;
+    font-weight: bold;
+    font-family: var(--font-val);
+    text-decoration: none;
+    color: white;
+    background-color: var(--color-primary-val);
+    padding: 5px 20px 0px 20px;
+    border-radius: 5px;
+}
+
+.card-button:hover {
+    color: white;
+    background-color: var(--color-secondary-val);
+}
+
+.card-complete {
+    font-size: 15px;
+    font-weight: bold;
+    font-family: var(--font-val);
+    text-decoration: none;
+    color: white;
+    background-color: var(--color-secondary-val);
+    padding: 5px 20px 0px 20px;
+    border-radius: 5px;
+}

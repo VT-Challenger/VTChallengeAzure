@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="~/logo.ico" />
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <!-- PERSONAL -->
+    <link rel="stylesheet" href="~/css/global.css" />
+    <link rel="stylesheet" href="~/css/customs/button.css" />
+    <link rel="stylesheet" href="~/css/customs/button_up.css" />
+    <link rel="stylesheet" href="~/css/customs/card.css" />
+    <link rel="stylesheet" href="~/css/customs/sweetalert2.css" />
+    <link rel="stylesheet" href="~/css/layout_create_tournament.css" />
+    <title>VT Challenge</title>
+</head>
+<body>
+    <partial name="_MenuUsuario" />
+
+
+    @RenderBody()
+
+
+</body>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/button-up.js"></script>
+<script src="~/js/sweetalert2.all.min.js"></script>
+@await RenderSectionAsync("scriptDelete", required:false);
+
+</html>
