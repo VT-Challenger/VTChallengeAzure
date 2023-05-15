@@ -22,6 +22,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<ServiceVTChallenge>();
 builder.Services.AddTransient<ServiceStorageBlob>();
 builder.Services.AddSingleton<HelperMails>();
+builder.Services.AddSingleton<HelperBlob>();
 builder.Services.AddSingleton<HelperJson>();
 
 builder.Services.AddDistributedMemoryCache();

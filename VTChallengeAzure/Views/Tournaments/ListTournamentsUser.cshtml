@@ -70,7 +70,7 @@
             </div>
             @if (tournamentsUser != null) {
                 @foreach (TournamentComplete tournament in tournamentsUser) {
-                    <div class="card" style="background-image: url('../imgs/tournaments/@tournament.Image')">
+                    <div class="card" style="background-image: url('@tournament.Image')">
                         @{
                             var fechaFormateada = tournament.DateInit.ToString("dd MMM yyyy HH:mm");
                         }

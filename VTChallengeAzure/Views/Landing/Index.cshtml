@@ -13,7 +13,7 @@
     <a asp-action="TournamentDetails" asp-controller="Tournaments" asp-route-tid="@Model[i].Tid">
         <div class="div_novedades">
 
-            <div class="img_novedades" style='background-image: url("../imgs/tournaments/@Model[i].Image");'>
+            <div class="img_novedades" style='background-image: url("@Model[i].Image");'>
                 <!-- <div class="hover_rojo"><h1>Unirse</h1></div> -->
                 <img class="rank_nov" src="~/imgs/rangos/@rankFormat" alt="" draggable="false">
 
