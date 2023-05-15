@@ -4,6 +4,8 @@ using NugetVTChallenge.Models;
 using System.Net.Http.Headers;
 using System.Net;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace VTChallengeAzure.Services {
     public class ServiceVTChallenge {
@@ -98,6 +100,18 @@ namespace VTChallengeAzure.Services {
             }
         }
 
+        private async Task<T> InsertApiAsync<T>(string request, string token) {
+            using (HttpClient client = new HttpClient()) {
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+
+                HttpResponseMessage response = await client.PostAsync(request, null);
+                return default(T);
+            }
+        }
+
         private async Task<HttpStatusCode> UpdateApiAsync<T>(string request, T objeto, string token) {
             using (HttpClient client = new HttpClient()) {
                 client.BaseAddress = new Uri(this.UrlApi);
@@ -151,23 +165,133 @@ namespace VTChallengeAzure.Services {
         #endregion
 
         #region USUARIO
-        public async Task RegisterUser(string name, string password, string image) {
+        public async Task RegisterUser(string name, string tag, string email, string password) {
             Usuario newUser = new Usuario {
-                IdUser = 0,
+                Uid = "",
                 Name = name,
+                Tag = tag,
+                Email = email,
                 Password = password,
-                PasswordSHA = Encoding.ASCII.GetBytes(""),
+                PassEncript = Encoding.ASCII.GetBytes(""),
                 Salt = "",
-                Image = image
+                ConfirmPassword = "",
+                ImageLarge = "",
+                ImageSmall = "",
+                Rank = "",
+                Rol = ""
             };
-            string request = "/api/auth/Register";
+            string request = "/api/auth/register";
             await this.InsertApiAsync<Usuario>(request, newUser);
         }
 
         public async Task<Usuario> GetPerfil() {
-            string request = "/api/auth/getperfil";
+            string request = "/api/auth/profile";
             string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
             return await this.CallApiAsync<Usuario>(request, token);
+        }
+
+        public async Task<string> UpdateProfile() {
+            string request = "/api/usuario/update";
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.CallApiAsync<string>(request, token);
+        }
+
+        public async Task<int> Victories() {
+            string request = "/api/usuario/victories";
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.CallApiAsync<int>(request, token);
+        }
+        #endregion
+
+        #region TOURNAMENT
+        public async Task<List<TournamentComplete>> GetAllTournaments() {
+            string request = "/api/tournament/getalltournaments";
+            return await this.CallApiAsync <List<TournamentComplete>>(request);
+        }
+
+        public async Task<TournamentComplete> GetTournament(int tid) {
+            string request = "/api/tournament/gettournament/" + tid;
+            return await this.CallApiAsync<TournamentComplete>(request);
+        }
+
+        public async Task<List<TournamentComplete>> GetMyTournaments() {
+            string request = "/api/tournament/GetMyTournaments";
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.CallApiAsync<List<TournamentComplete>>(request,token);
+        }
+
+        public async Task<List<TournamentComplete>> GetMyTournamentsFiltereds(string filtro) {
+            string request = "/api/tournament/GetMyTournamentsFiltereds/" + filtro;
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.CallApiAsync<List<TournamentComplete>>(request, token);
+        }
+
+        public async Task<List<TournamentComplete>> GetTournamentsAvailableRank() {
+            string request = "/api/tournament/GetTournamentsAvailableRank";
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.CallApiAsync<List<TournamentComplete>>(request, token);
+        }
+
+        public async Task<List<TournamentComplete>> FindTournamentsAvailableRank(string filtro) {
+            string request = "/api/tournament/FindTournamentsAvailableRank/" + filtro;
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.CallApiAsync<List<TournamentComplete>>(request, token);
+        }
+
+        public async Task<List<TournamentPlayers>> GetPlayers(int tid) {
+            string request = "/api/tournament/GetPlayers/" + tid;
+            return await this.CallApiAsync<List<TournamentPlayers>>(request);
+        }
+
+        public async Task<List<Round>> GetRounds(int tid) {
+            string request = "/api/tournament/GetRounds/" + tid;
+            return await this.CallApiAsync<List<Round>>(request);
+        }
+
+        public async Task<List<MatchRound>> GetMatches(int tid) {
+            string request = "/api/tournament/GetMatches/" + tid;
+            return await this.CallApiAsync<List<MatchRound>>(request);
+        }
+
+        public async Task<List<TournamentPlayers>> GetWinners(int tid) {
+            string request = "/api/tournament/GetWinners/" + tid;
+            return await this.CallApiAsync<List<TournamentPlayers>>(request);
+        }
+
+        public async Task<bool> ValidateInscription(int tid) {
+            string request = "/api/tournament/ValidateInscription/" + tid;
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.CallApiAsync<bool>(request, token);
+        }
+
+        public async Task<bool> Inscription(int tid) {
+            string request = "/api/tournament/Inscription/" + tid;
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.InsertApiAsync<bool>(request, token);
+        }
+
+        public async Task<HttpStatusCode> DeleteTournament(int tid) {
+            string request = "/api/tournament/DeleteTournament/" + tid;
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.DeleteApiAsync(request, token);
+        }
+
+        public async Task<HttpStatusCode> CreateTournament(InsertTournament objects) {
+            string request = "/api/tournament/CreateTournament";
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.InsertApiAsync<InsertTournament>(request,objects ,token);
+        }
+
+        public async Task<HttpStatusCode> UpdateResultMatches(List<Match> partidas) {
+            string request = "/api/tournament/UpdateResultMatches";
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.UpdateApiAsync<List<Match>>(request, partidas ,token);
+        }
+
+        public async Task<HttpStatusCode> DeleteUserTournament(int tid, string uid) {
+            string request = "/api/tournament/DeleteUserTournament/" + tid + "/" + uid;
+            string token = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
+            return await this.DeleteApiAsync(request , token);
         }
         #endregion
 

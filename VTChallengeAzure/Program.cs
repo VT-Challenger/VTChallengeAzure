@@ -1,7 +1,38 @@
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using VTChallengeAzure.Helpers;
+using VTChallengeAzure.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Blobs
+string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAccount");
+BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
+builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
+
+builder.Services.AddAuthentication(options => {
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+}).AddCookie();
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+builder.Services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
+
+builder.Services.AddAntiforgery();
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddTransient<HttpClient>();
+builder.Services.AddTransient<ServiceVTChallenge>();
+builder.Services.AddTransient<ServiceStorageBlob>();
+builder.Services.AddSingleton<HelperMails>();
+builder.Services.AddSingleton<HelperJson>();
+
 
 var app = builder.Build();
 
@@ -17,10 +48,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.UseSession();
+app.UseMvc(routes => {
+    routes.MapRoute(
+        name: "default",
+        template: "{controller=Landing}/{action=Index}/{id?}"
+   );
+});
 
 app.Run();
