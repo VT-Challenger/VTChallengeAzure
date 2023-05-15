@@ -1,50 +1,34 @@
-﻿using System.Net;
+﻿using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Mail;
+using System.Text;
 
 namespace VTChallengeAzure.Helpers {
     public class HelperMails {
-        private IConfiguration configuration;
 
-        public HelperMails(IConfiguration configuration) {
-            this.configuration = configuration;
-        }
+        private MediaTypeWithQualityHeaderValue Header;
 
-        private MailMessage ConfigureMailMessage(string para, string asunto, string mensaje) {
-            MailMessage mailMessage = new MailMessage();
-            string email = this.configuration.GetValue<string>("MailSettings:Credentials:User");
-            mailMessage.From = new MailAddress(email);
-            mailMessage.To.Add(new MailAddress(para));
-            mailMessage.Subject = asunto;
-            mailMessage.Body = mensaje;
-            mailMessage.IsBodyHtml = true;
-
-            return mailMessage;
-        }
-
-        private SmtpClient ConfigureSmtpClient() {
-            string user = this.configuration.GetValue<string>("MailSettings:Credentials:User");
-            string password = this.configuration.GetValue<string>("MailSettings:Credentials:Password");
-            string host = this.configuration.GetValue<string>("MailSettings:Smtp:Host");
-            int port = this.configuration.GetValue<int>("MailSettings:Smtp:Port");
-            bool enableSSL = this.configuration.GetValue<bool>("MailSettings:Smtp:EnableSSL");
-            bool defaultCredentials = this.configuration.GetValue<bool>("MailSettings:Smtp:DefaultCredentials");
-
-            SmtpClient client = new SmtpClient();
-            client.Host = host;
-            client.Port = port;
-            client.EnableSsl = enableSSL;
-            client.UseDefaultCredentials = defaultCredentials;
-
-            NetworkCredential credentials = new NetworkCredential(user, password);
-            client.Credentials = credentials;
-            return client;
+        public HelperMails() {
+            this.Header = new MediaTypeWithQualityHeaderValue("application/json");
         }
 
 
-        public async Task SendMailAsync(string para, string asunto, string mensaje) {
-            MailMessage mail = this.ConfigureMailMessage(para, asunto, mensaje);
-            SmtpClient client = this.ConfigureSmtpClient();
-            await client.SendMailAsync(mail);
+        public async Task SendMailAsync (string email, string asunto, string mensaje) {
+            string urlEmail = "https://prod-173.westeurope.logic.azure.com:443/workflows/d130204b5ea348329acb16aff4da8f73/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=P_VKuP8C4LKw2kRjvj90wdU4I_WYv9VkP2NXfOnYqNs";
+            var model = new {
+                email = email,
+                asunto = asunto,
+                mensaje = mensaje
+            };
+            using (HttpClient client = new HttpClient()) {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                string json = JsonConvert.SerializeObject(model);
+                StringContent content =
+                    new StringContent(json, Encoding.UTF8, "application/json");
+                await client.PostAsync(urlEmail, content);
+            }
         }
 
         public string PlantillaInscriptionPlayer(string name, string nombreTorneo, string fecha, string server, string organizador) {

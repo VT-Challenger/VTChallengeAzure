@@ -13,12 +13,14 @@ namespace VTChallenge.Controllers {
         private ServiceVTChallenge service;
         private ServiceStorageBlob serviceBlob;
         private HelperBlob helper;
+        private HelperMails helperMails;
 
 
-        public TournamentsController(ServiceVTChallenge service, ServiceStorageBlob serviceBlob, HelperBlob helper) {
+        public TournamentsController(ServiceVTChallenge service, ServiceStorageBlob serviceBlob, HelperBlob helper, HelperMails helperMails) {
             this.service = service;
             this.serviceBlob = serviceBlob;
             this.helper = helper;
+            this.helperMails = helperMails;
         }
 
         [AuthorizeUsers]
@@ -64,8 +66,22 @@ namespace VTChallenge.Controllers {
         public async Task<IActionResult> InscriptionPlayer(int tid) {
             bool res = await this.service.Inscription(tid);
 
-            if (res) {
+            if (!res) {
                 //ENVIAR CORREO CON AZURE
+                //DATA CORREOS
+                TournamentComplete tournament = await this.service.GetTournament(tid);
+                string user = HttpContext.User.Identity.Name;
+                int espacios = tournament.LimitPlayers - tournament.Inscriptions;
+                string contenidoOrg = this.helperMails.PlantillaInscriptionOrg(user, espacios);
+                string contenidoPlayer = this.helperMails.PlantillaInscriptionPlayer(user, tournament.Name, tournament.DateInit.ToString(), tournament.Platform, tournament.Organizator);
+
+                //CORREO AL USUARIO
+                await this.helperMails.SendMailAsync(HttpContext.User.FindFirst("EMAIL").Value.ToString(), "INSCRIPCION", contenidoPlayer);
+
+                //CORREO AL ORGANIZADOR (PONER CORREO DE ORGANIZADOR)
+                //Users organizador = await this.repo.FindUserByNameAsync(tournament.Organizator);
+                //await this.helperMails.SendMailAsync(organizador.Email, "INSCRIPCION", contenidoOrg);
+
                 return RedirectToAction("TournamentDetails", "Tournaments", new { tid = tid });
             } else {
                 return RedirectToAction("TournamentDetails", "Tournaments", new { tid = tid });
