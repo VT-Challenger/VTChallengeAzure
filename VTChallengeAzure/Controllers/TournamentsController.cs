@@ -101,9 +101,10 @@ namespace VTChallenge.Controllers {
         [AuthorizeUsers]
         [HttpDelete]
         public async Task<IActionResult> DeleteTournament(int tid) {
-            HttpStatusCode res = await this.service.DeleteTournament(tid);
             TournamentComplete t = await this.service.GetTournament(tid);
             await this.serviceBlob.DeleteBlobAsync("usuariosblobs", t.Image);
+            HttpStatusCode res = await this.service.DeleteTournament(tid);
+            
             if (res == HttpStatusCode.OK) {
                 return RedirectToAction("ListTournamentsUser", "Tournaments");
             } else {
